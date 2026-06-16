@@ -1,0 +1,32 @@
+# Usage:
+#   docker-compose up - build image and run tests
+#   docker-compose down --rmi all - delete images and containers based on docker-compose
+version: '3'
+
+services:
+  web:
+    image: web
+    build:
+      context: .
+      dockerfile: Dockerfile
+  chromium:
+    depends_on:
+      - web
+    volumes:
+      - ./target/chromium:/usr/target
+    image: web:latest
+    command: mvn test -Dcucumber.filter.tags=@login -Denv=des -Dbrowser=chromium -Dheadless=true
+  firefox:
+    depends_on:
+      - web
+    volumes:
+      - ./target/firefox:/usr/target
+    image: web:latest
+    command: mvn test -Dcucumber.filter.tags=@login -Denv=des -Dbrowser=firefox -Dheadless=true
+  webkit:
+    depends_on:
+      - web
+    volumes:
+      - ./target/webkit:/usr/target
+    image: web:latest
+    command: mvn test -Dcucumber.filter.tags=@login -Denv=des -Dbrowser=webkit -Dheadless=true
